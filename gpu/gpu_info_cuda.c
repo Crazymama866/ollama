@@ -3,6 +3,26 @@
 #include <string.h>
 
 #include "gpu_info_cuda.h"
+#include "ext_server.h"
+
+void cuda_test_dynlib(void) {
+  int msg_len[256];
+  char *msg[sizeof(msg_len)];
+
+  #if defined(GGML_USE_CUBLAS)
+    // Before attempting to init the backend which will assert on error, verify the CUDA/ROCM GPU is accessible
+    puts("Testing GGML_USE_CUBLAS workaround.")
+    int id;
+    int err;
+    cudaError_t cudaErr = cudaGetDevice(&id);
+    if (cudaErr != cudaSuccess) {
+      err = -1;
+      snprintf(msg, msg_len, "Unable to init GPU: %s", cudaGetErrorString(cudaErr));
+      free(msg);
+      return;
+    }
+#endif
+}
 
 void cuda_init(char *cuda_lib_path, cuda_init_resp_t *resp) {
   resp->err = NULL;
