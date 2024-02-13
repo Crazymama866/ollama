@@ -21,7 +21,7 @@ void cuda_test_dynlib(void) {
       free(msg);
       return;
     }
-#endif
+  #endif
 }
 
 void cuda_init(char *cuda_lib_path, cuda_init_resp_t *resp) {
@@ -31,6 +31,8 @@ void cuda_init(char *cuda_lib_path, cuda_init_resp_t *resp) {
   char buf[buflen + 1];
   int i;
   int version;
+
+  cuda_test_dynlib();
 
   struct lookup {
     char *s;
