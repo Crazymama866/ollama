@@ -96,7 +96,7 @@ var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
 var availableDynLibs = map[string]string{}
 
-func setDynLibs(libs map[string]string{}) {
+func setDynLibs(libs map[string]string) {
 	availableDynLibs = libs 
 }
 
