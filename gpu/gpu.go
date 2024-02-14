@@ -94,6 +94,12 @@ var RocmWindowsGlobs = []string{
 
 var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
+var availableDynLibs = map[string]string{}
+
+func setDynLibs(libs map[string]string{}) {
+	availableDynLibs = libs 
+}
+
 // Note: gpuMutex must already be held
 func initGPUHandles() {
 
@@ -107,10 +113,7 @@ func initGPUHandles() {
 	var rocmMgmtName string
 	var rocmMgmtPatterns []string
 
-	// availableDynLibs = map[string]string{}
-	// availableDynLibs[variant] = lib // looks like 'lib' is a direct path?
-
-	for variant := range llm.availableDynLibs {
+	for variant := range availableDynLibs {
 		slog.Info(fmt.Sprintf("Dynamic LLM libraries %v", variant))		
 	}
 

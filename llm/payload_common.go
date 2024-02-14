@@ -146,6 +146,8 @@ func nativeInit(workdir string) error {
 	slog.Info(fmt.Sprintf("Dynamic LLM libraries %v", variants))
 	slog.Debug("Override detection logic by setting OLLAMA_LLM_LIBRARY")
 
+	gpu.setDynLibs(availableDynLibs)
+
 	return nil
 }
 
