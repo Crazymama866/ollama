@@ -95,9 +95,11 @@ var RocmWindowsGlobs = []string{
 var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
 var availableDynLibs = map[string]string{}
+var dynLibsDir = string
 
-func SetDynLibs(libs map[string]string) {
+func SetDynLibs(libs map[string]string, libs_dir string) {
 	availableDynLibs = libs
+	dynLibsDir = libs_dir
 }
 
 // Note: gpuMutex must already be held
@@ -114,8 +116,10 @@ func initGPUHandles() {
 	var rocmMgmtPatterns []string
 
 	for variant := range availableDynLibs {
-		slog.Info(fmt.Sprintf("Dynamic LLM libraries %v", variant))		
+		slog.Info(fmt.Sprintf("***TESTING*** Dynamic LLM libraries %v", variant))	
 	}
+
+	slog.Info(fmt.Sprintf("***TESTING*** Dynamic LLM workdir %s", dynLibsDir))
 
 	switch runtime.GOOS {
 	case "windows":
