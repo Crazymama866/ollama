@@ -95,7 +95,7 @@ var RocmWindowsGlobs = []string{
 var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
 var availableDynLibs = map[string]string{}
-var dynLibsDir = string
+var dynLibsDir string
 
 func SetDynLibs(libs map[string]string, libs_dir string) {
 	availableDynLibs = libs
