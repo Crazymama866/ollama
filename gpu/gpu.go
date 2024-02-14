@@ -20,6 +20,8 @@ import (
 	"strings"
 	"sync"
 	"unsafe"
+
+	"github.com/jmorganca/ollama/llm"
 )
 
 type handles struct {
@@ -105,6 +107,14 @@ func initGPUHandles() {
 	var cudaMgmtPatterns []string
 	var rocmMgmtName string
 	var rocmMgmtPatterns []string
+
+	// availableDynLibs = map[string]string{}
+	// availableDynLibs[variant] = lib // looks like 'lib' is a direct path?
+
+	for variant := range llm.availableDynLibs {
+		slog.Info(fmt.Sprintf("Dynamic LLM libraries %v", variant))		
+	}
+
 	switch runtime.GOOS {
 	case "windows":
 		cudartMgmtName = "cudart64_*.dll"
