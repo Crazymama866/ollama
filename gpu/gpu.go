@@ -29,13 +29,13 @@ type handles struct {
 }
 
 type dynLibs struct {
-	cudaLibs []string {string}
-	rocmLibs []string {string}
+	cudaLibs []string
+	rocmLibs []string
 }
 
 type dynLibsPaths struct{
-	cudaPath []string {string}
-	rocmPath []string {string}
+	cudaPath []string
+	rocmPath []string
 }
 
 // Enum to keep track of which CUDA library is used
@@ -113,7 +113,7 @@ func SetDynLibs(libs map[string]string, libsDir string) {
 	dynLibsDir = libsDir
 }
 
-func parseDynLibs(*libs map[string]string, *libsDir string) (dynLibs, dynLibsPaths) {
+func parseDynLibs(libs *map[string]string, libsDir *string) (dynLibs, dynLibsPaths) {
 	var dynGpuLibs dynLibs 
 	var dynGpuLibsPaths dynLibsPaths
 	for lib := range libs {
@@ -135,6 +135,7 @@ func parseDynLibs(*libs map[string]string, *libsDir string) (dynLibs, dynLibsPat
 			dynGpuLibsPaths.rocmPath = append(dynGpuLibsPaths.rocmPath, directory)
 		}
 	}
+	return (dynLibs, dynLibsPaths)
 }
 
 // type dynLibs struct {
