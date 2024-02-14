@@ -21,7 +21,6 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/jmorganca/ollama/llm"
 )
 
 type handles struct {
