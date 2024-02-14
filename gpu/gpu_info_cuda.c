@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "gpu_info_cuda.h"
-#include "ext_server.h"
 
 void cuda_test_dynlib(void) {
   int msg_len[256];
