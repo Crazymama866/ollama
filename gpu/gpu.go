@@ -106,6 +106,10 @@ var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
 // Load available libraries unpackaged in payload_common.go
 
+var availableDynLibs []string
+var dynLibsDir string
+
+
 // Function called in llm package during extraction of libraries
 // TODO: set a mutex
 func SetDynLibs(libs map[string]string, libsDir string) {
@@ -113,7 +117,7 @@ func SetDynLibs(libs map[string]string, libsDir string) {
 	dynLibsDir = libsDir
 }
 
-func parseDynLibs(libs *map[string]string, libsDir *string) (dynLibs, dynLibsPaths) {
+func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths) {
 	var dynGpuLibs dynLibs 
 	var dynGpuLibsPaths dynLibsPaths
 	for lib := range libs {
@@ -164,7 +168,7 @@ func initGPUHandles() {
 	var dynRocmMgmtName string
 	var dynRocmMgmtPatterns []string
 
-	dynLibs, dynGlobs := parseDynLibs(&availableDynLibs, &dynLibsDir)
+	dynLibs, dynGlobs := parseDynLibs(availableDynLibs, dynLibsDir)
 	dynCudaGlobs := dynLibs.cudaLibPaths
 	dynRocmGlobs := dynLibs.rocmLibPaths
 
