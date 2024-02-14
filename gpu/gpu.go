@@ -97,7 +97,8 @@ var CudaTegra string = os.Getenv("JETSON_JETPACK")
 var availableDynLibs = map[string]string{}
 
 func setDynLibs(libs map[string]string) {
-	availableDynLibs = libs 
+	availableDynLibs = make([]string, len(libs))
+	copy(availableDynLibs, libs)
 }
 
 // Note: gpuMutex must already be held
