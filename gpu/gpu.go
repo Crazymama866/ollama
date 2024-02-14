@@ -118,20 +118,20 @@ func parseDynLibs(libs *map[string]string, libsDir *string) (dynLibs, dynLibsPat
 	var dynGpuLibsPaths dynLibsPaths
 	for lib := range libs {
 		if (string.HasPrefix(lib, "cuda")) {
-			directory = filepath.Join(dynGpuLibsPaths, lib)
+			directory = filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
 			if err != nil {
 				continue
 			}
-			dynGpuLibs.cuda = append(dynGpuLibs.cuda, lib)
+			dynGpuLibs.cudaLibs = append(dynGpuLibs.cudaLibs, lib)
 			dynGpuLibsPaths.cudaPath = append(dynGpuLibsPaths.cudaPath, directory)
 		} else if (string.HasPrefix(lib, "rocm")) {
-			directory = filepath.Join(dynGpuLibsPaths, lib)
+			directory = filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
 			if err != nil {
 				continue
 			}
-			dynGpuLibs.rocm = append(dynGpuLibs.rocm, lib)
+			dynGpuLibs.rocmLibs = append(dynGpuLibs.rocmLibs, lib)
 			dynGpuLibsPaths.rocmPath = append(dynGpuLibsPaths.rocmPath, directory)
 		}
 	}
@@ -164,7 +164,7 @@ func initGPUHandles() {
 	var dynRocmMgmtName string
 	var dynRocmMgmtPatterns []string
 
-	dynLibs, dynGlobs := parseDynLibs(availableDynLibs, dynLibsDir)
+	dynLibs, dynGlobs := parseDynLibs(&availableDynLibs, &dynLibsDir)
 	dynCudaGlobs := dynLibs.cudaLibPaths
 	dynRocmGlobs := dynLibs.rocmLibPaths
 
