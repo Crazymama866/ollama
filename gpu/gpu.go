@@ -106,13 +106,13 @@ var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
 // Load available libraries unpackaged in payload_common.go
 
-var availableDynLibs []string
+var availableDynLibs = map[string]string{}
 var dynLibsDir string
 
 
 // Function called in llm package during extraction of libraries
 // TODO: set a mutex
-func SetDynLibs(libs map[string]string, libsDir string) {
+func SetDynLibs(libs []string, libsDir string) {
 	availableDynLibs = libs
 	dynLibsDir = libsDir
 }
