@@ -135,7 +135,7 @@ func parseDynLibs(libs *map[string]string, libsDir *string) (dynLibs, dynLibsPat
 			dynGpuLibsPaths.rocmPath = append(dynGpuLibsPaths.rocmPath, directory)
 		}
 	}
-	return (dynLibs, dynLibsPaths)
+	return dynLibs, dynLibsPaths
 }
 
 // type dynLibs struct {
@@ -183,7 +183,7 @@ func initGPUHandles() {
 		dynCudaMgmtPatterns = make([]string, len(dynCudaGlobs))
 		copy(dynCudaMgmtPatterns, dynCudaGlobs)
 		dynRocmMgmtName = "rocm_smi64.dll"
-		dynRocmMgmtPatterns = make([string, len(dynCudaGlobs)])
+		dynRocmMgmtPatterns = make([]string, len(dynCudaGlobs))
 		copy(dynRockmMgmtPatterns, dynRocmGlobs)
 	case "linux":
 		cudartMgmtName = "libcudart.so"
@@ -199,7 +199,7 @@ func initGPUHandles() {
 		dynCudaMgmtPatterns = make([]string, len(dynCudaGlobs))
 		copy(dynCudaMgmtPatterns, dynCudaGlobs)
 		dynRocmMgmtName = "librocm_smi64.so"
-		dynRocmMgmtPatterns = make([string, len(dynCudaGlobs)])
+		dynRocmMgmtPatterns = make([]string, len(dynCudaGlobs))
 		copy(dynRockmMgmtPatterns, dynRocmGlobs)
 	default:
 		return
