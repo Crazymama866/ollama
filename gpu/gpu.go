@@ -112,7 +112,7 @@ var dynLibsDir string
 
 // Function called in llm package during extraction of libraries
 // TODO: set a mutex
-func SetDynLibs(libs []string, libsDir string) {
+func SetDynLibs(libs map[string]string, libsDir string) {
 	availableDynLibs = libs
 	dynLibsDir = libsDir
 }
@@ -128,7 +128,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 				continue
 			}
 			dynGpuLibs.cudaLibs = append(dynGpuLibs.cudaLibs, lib)
-			dynGpuLibsPaths.cudaPath = append(dynGpuLibsPaths.cudaPath, directory)
+			dynGpuLibsPaths.cudaPath = append(dynGpuLibsPaths.cudaPath, d)
 		} else if (strings.HasPrefix(lib, "rocm")) {
 			directory := filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
@@ -136,10 +136,10 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 				continue
 			}
 			dynGpuLibs.rocmLibs = append(dynGpuLibs.rocmLibs, lib)
-			dynGpuLibsPaths.rocmPath = append(dynGpuLibsPaths.rocmPath, directory)
+			dynGpuLibsPaths.rocmPath = append(dynGpuLibsPaths.rocmPath, d)
 		}
 	}
-	return dynLibs, dynLibsPaths
+	return dynGpuLibs, dynGpuLibsPaths
 }
 
 // type dynLibs struct {
@@ -168,9 +168,9 @@ func initGPUHandles() {
 	var dynRocmMgmtName string
 	var dynRocmMgmtPatterns []string
 
-	dynLibs, dynGlobs := parseDynLibs(availableDynLibs, dynLibsDir)
-	dynCudaGlobs := dynLibs.cudaLibPaths
-	dynRocmGlobs := dynLibs.rocmLibPaths
+	_, dynGlobs := parseDynLibs(availableDynLibs, dynLibsDir)
+	dynCudaGlobs := dynGlobs.cudaLibPaths
+	dynRocmGlobs := dynGlobs.rocmLibPaths
 
 	switch runtime.GOOS {
 	case "windows":
@@ -188,7 +188,7 @@ func initGPUHandles() {
 		copy(dynCudaMgmtPatterns, dynCudaGlobs)
 		dynRocmMgmtName = "rocm_smi64.dll"
 		dynRocmMgmtPatterns = make([]string, len(dynCudaGlobs))
-		copy(dynRockmMgmtPatterns, dynRocmGlobs)
+		copy(dynRocmMgmtPatterns, dynRocmGlobs)
 	case "linux":
 		cudartMgmtName = "libcudart.so"
 		cudartMgmtPatterns = make([]string, len(CudartLinuxGlobs))
@@ -204,7 +204,7 @@ func initGPUHandles() {
 		copy(dynCudaMgmtPatterns, dynCudaGlobs)
 		dynRocmMgmtName = "librocm_smi64.so"
 		dynRocmMgmtPatterns = make([]string, len(dynCudaGlobs))
-		copy(dynRockmMgmtPatterns, dynRocmGlobs)
+		copy(dynRocmMgmtPatterns, dynRocmGlobs)
 	default:
 		return
 	}
