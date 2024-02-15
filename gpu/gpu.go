@@ -119,9 +119,8 @@ var rocmDynFailed bool = false
 
 func SetDynLibs(libs []string, libsDir string) {
 	availableDynLibs = make([]string, len(libs))
-	dynLibsDir = make(string, libsDir)
 	copy(availableDynLibs, libs)
-	copy(dynLibsDir, libsDir)
+	dynLibsDir = libsDir
 }
 
 func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
