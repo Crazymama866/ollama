@@ -143,11 +143,9 @@ func nativeInit(workdir string) error {
 	// rocm_v5 FOR TESTING
 	// rocm_v6 FOR TESTING
 
-	lib1 := filepath.Join(workdir, filepath.Base("rocm_v5"))
-	lib2 := filepath.Join(workdir, filepath.Base("rocm_v6"))
+	lib1 := filepath.Join(workdir, "/rocm_v6/")
 
 	libs = append(libs, lib1)
-	libs = append(libs, lib2)
 	
 	for _, lib := range libs {
 		slog.Info(fmt.Sprintf("CHECKING OUT THIS ERROR LOG FOR LIB: %s", lib))
