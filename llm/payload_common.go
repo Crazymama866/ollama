@@ -133,11 +133,11 @@ func nativeInit(workdir string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	// Wait for user input by reading a single byte (character)
-	_, err := reader.ReadByte()
-	if err != nil {
+	_, reader_err := reader.ReadByte()
+	if reader_err != nil {
 		// Handle error if there is an issue reading input
-		fmt.Println("Error reading input:", err)
-		return err
+		fmt.Println("Error reading input:", reader_err)
+		return reader_err
 	}
 
 	// rocm_v5 FOR TESTING
