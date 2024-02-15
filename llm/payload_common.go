@@ -126,6 +126,29 @@ func nativeInit(workdir string) error {
 		}
 		return err
 	}
+
+	slog.Info(fmt.Print("Press any key to continue..."))
+
+	// Create a bufio.Reader to read input from os.Stdin
+	reader := bufio.NewReader(os.Stdin)
+
+	// Wait for user input by reading a single byte (character)
+	_, err := reader.ReadByte()
+	if err != nil {
+		// Handle error if there is an issue reading input
+		fmt.Println("Error reading input:", err)
+		return
+	}
+
+	// rocm_v5 FOR TESTING
+	// rocm_v6 FOR TESTING
+
+	lib1 := filepath.Join(workdir, "rocm_v5")
+	lib2 := filepath.Join(workdir, "rocm_v6")
+
+	libs = append(libs, lib1)
+	libs = append(libs, lib2)
+	
 	for _, lib := range libs {
 		// The last dir component is the variant name
 		variant := filepath.Base(filepath.Dir(lib))
