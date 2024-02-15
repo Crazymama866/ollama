@@ -232,8 +232,8 @@ func initGPUHandles() {
 
 	if rocmDynFailed == false {
 		dynRocmLibPaths := FindDynGPULibs(dynRocmMgmtName, dynRocmMgmtPatterns)
-		if len(rocmLibPaths) > 0 {
-			rocm := LoadROCMMgmt(rocmLibPaths)
+		if len(dynRocmLibPaths) > 0 {
+			rocm := LoadROCMMgmt(dynRocmLibPaths)
 			if rocm != nil {
 				slog.Info("Radeon GPU detected")
 				gpuHandles.rocm = rocm
