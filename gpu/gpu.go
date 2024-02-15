@@ -29,13 +29,13 @@ type handles struct {
 }
 
 type dynLibs struct {
-	cudaLibs []string
-	rocmLibs []string
+	cuda []string
+	rocm []string
 }
 
 type dynLibsPaths struct{
-	cudaPaths []string
-	rocmPaths []string
+	cuda []string
+	rocm []string
 }
 
 // Enum to keep track of which CUDA library is used
@@ -114,9 +114,14 @@ var rocmDynFailed bool = false
 
 // Function called in llm package during extraction of libraries
 // TODO: set a mutex
+// dynCudaMgmtPatterns = make([]string, len(dynCudaGlobs))
+// copy(dynCudaMgmtPatterns, dynCudaGlobs)
+
 func SetDynLibs(libs []string, libsDir string) {
-	availableDynLibs = libs
-	dynLibsDir = libsDir
+	availableDynLibs = make([]string, len(libs))
+	dynLibsDir = make(string, libsDir)
+	copy(availableDynLibs, libs)
+	copy(dynLibsDir, libsDir)
 }
 
 func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
@@ -130,8 +135,8 @@ func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
 			if err != nil {
 				continue
 			}
-			dynGpuLibs.cudaLibs = append(dynGpuLibs.cudaLibs, lib)
-			dynGpuLibsPaths.cudaPaths = append(dynGpuLibsPaths.cudaPaths, d)
+			dynGpuLibs.cuda = append(dynGpuLibs.cuda, lib)
+			dynGpuLibsPaths.cuda = append(dynGpuLibsPaths.cuda, d)
 			slog.Info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
 		} else if (strings.HasPrefix(lib, "rocm")) {
 			directory := filepath.Join(libsDir, lib)
@@ -139,8 +144,8 @@ func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
 			if err != nil {
 				continue
 			}
-			dynGpuLibs.rocmLibs = append(dynGpuLibs.rocmLibs, lib)
-			dynGpuLibsPaths.rocmPaths = append(dynGpuLibsPaths.rocmPaths, d)
+			dynGpuLibs.rocm = append(dynGpuLibs.rocm, lib)
+			dynGpuLibsPaths.rocm = append(dynGpuLibsPaths.rocm, d)
 			slog.Info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
 		}
 	}
@@ -148,12 +153,12 @@ func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
 }
 
 // type dynLibs struct {
-// 	cudaLibs []string {string}
-// 	rocmLibs []string {string}
+// 	cuda []string {string}
+// 	rocm []string {string}
 // }
 // type dynLibsPaths struct{
-// 	cudaPaths []string {string}
-// 	rocmPaths []string {string}
+// 	cuda []string {string}
+// 	rocm []string {string}
 // }
 
 // Note: gpuMutex must already be held
@@ -174,8 +179,8 @@ func initGPUHandles() {
 	var dynRocmMgmtPatterns []string
 
 	_, dynGlobs := parseDynLibs(availableDynLibs, dynLibsDir)
-	dynCudaGlobs := dynGlobs.cudaPaths
-	dynRocmGlobs := dynGlobs.rocmPaths
+	dynCudaGlobs := dynGlobs.cuda
+	dynRocmGlobs := dynGlobs.rocm
 
 	switch runtime.GOOS {
 	case "windows":
