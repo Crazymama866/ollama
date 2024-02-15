@@ -128,7 +128,7 @@ func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
 	var dynGpuLibsPaths dynLibsPaths
 	for _, lib := range libs {
 		slog.Info(fmt.Sprintf("Attempting to parse library %s at path %s", lib, libsDir))
-		if (strings.HasPrefix(lib, "cuda")) {
+		if (strings.HasPrefix(lib, "safasfdcuda")) {
 			directory := filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
 			if err != nil {
