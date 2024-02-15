@@ -34,8 +34,8 @@ type dynLibs struct {
 }
 
 type dynLibsPaths struct{
-	cudaPath []string
-	rocmPath []string
+	cudaPaths []string
+	rocmPaths []string
 }
 
 // Enum to keep track of which CUDA library is used
@@ -109,6 +109,8 @@ var CudaTegra string = os.Getenv("JETSON_JETPACK")
 var availableDynLibs = map[string]string{}
 var dynLibsDir string
 
+var cudaDynFailed bool = false
+var rocmDynFailed bool = false
 
 // Function called in llm package during extraction of libraries
 // TODO: set a mutex
@@ -128,7 +130,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 				continue
 			}
 			dynGpuLibs.cudaLibs = append(dynGpuLibs.cudaLibs, lib)
-			dynGpuLibsPaths.cudaPath = append(dynGpuLibsPaths.cudaPath, d)
+			dynGpuLibsPaths.cudaPaths = append(dynGpuLibsPaths.cudaPaths, d)
 		} else if (strings.HasPrefix(lib, "rocm")) {
 			directory := filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
@@ -136,7 +138,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 				continue
 			}
 			dynGpuLibs.rocmLibs = append(dynGpuLibs.rocmLibs, lib)
-			dynGpuLibsPaths.rocmPath = append(dynGpuLibsPaths.rocmPath, d)
+			dynGpuLibsPaths.rocmPaths = append(dynGpuLibsPaths.rocmPaths, d)
 		}
 	}
 	return dynGpuLibs, dynGpuLibsPaths
@@ -147,8 +149,8 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 // 	rocmLibs []string {string}
 // }
 // type dynLibsPaths struct{
-// 	cudaPath []string {string}
-// 	rocmPath []string {string}
+// 	cudaPaths []string {string}
+// 	rocmPaths []string {string}
 // }
 
 // Note: gpuMutex must already be held
@@ -169,8 +171,8 @@ func initGPUHandles() {
 	var dynRocmMgmtPatterns []string
 
 	_, dynGlobs := parseDynLibs(availableDynLibs, dynLibsDir)
-	dynCudaGlobs := dynGlobs.cudaLibPaths
-	dynRocmGlobs := dynGlobs.rocmLibPaths
+	dynCudaGlobs := dynGlobs.cudaPaths
+	dynRocmGlobs := dynGlobs.rocmPaths
 
 	switch runtime.GOOS {
 	case "windows":
@@ -211,8 +213,37 @@ func initGPUHandles() {
 
 	slog.Info("Detecting GPU type")
 
-	// Injecting dynamically-loaded libraries first, if able.
+	// Injecting llama.cpp included libraries first, if able.
 
+	if cudaDynFailed == false {
+		dynCudartLibPaths := FindDynGPULibs(dynCudaMgmtName, dynCudaMgmtPatterns)
+		if len(dynCudartLibPaths) > 0 {
+			cuda := LoadCUDAMgmt(dynCudartLibPaths)
+			if cuda != nil {
+				slog.Info("Nvidia GPU detected")
+				gpuHandles.cuda = cuda
+				gpuHandles.cuda.lib_t = LibCUDART
+				return
+			} else {
+				cudaDynFailed = true
+			}
+		}
+	}
+
+	if rocmDynFailed == false {
+		dynRocmLibPaths := FindDynGPULibs(dynRocmMgmtName, dynRocmMgmtPatterns)
+		if len(rocmLibPaths) > 0 {
+			rocm := LoadROCMMgmt(rocmLibPaths)
+			if rocm != nil {
+				slog.Info("Radeon GPU detected")
+				gpuHandles.rocm = rocm
+				return
+			} else {
+				rocmDynFailed = true
+			}
+		}
+	}
+	
 	// Prefer libcudart.so if it's available
 
 	cudartLibPaths := FindGPULibs(cudartMgmtName, cudartMgmtPatterns)
@@ -395,32 +426,19 @@ func CheckVRAM() (int64, error) {
 
 func FindGPULibs(baseLibName string, patterns []string) []string {
 	// Multiple GPU libraries may exist, and some may not work, so keep trying until we exhaust them
-	// var ldPaths []string
-	var ldPaths2 []string
+	var ldPaths []string
 	gpuLibPaths := []string{}
 	slog.Info(fmt.Sprintf("Searching for GPU management library %s", baseLibName))
 
-	// dynLibsDir
-
-	
 	switch runtime.GOOS {
 	case "windows":
-		ldPaths2 = strings.Split(os.Getenv("PATH"), ";")
+		ldPaths = strings.Split(os.Getenv("PATH"), ";")
 	case "linux":
-		ldPaths2 = strings.Split(os.Getenv("LD_LIBRARY_PATH"), ":")
+		ldPaths = strings.Split(os.Getenv("LD_LIBRARY_PATH"), ":")
 	default:
 		return gpuLibPaths
 	}
-	
-	if dynLibsDir {
-		ldPaths := patterns
-	} else {
-		ldPaths := ldPaths2
-	}
-	
-	
-
-		// Start with whatever we find in the PATH/LD_LIBRARY_PATH
+	// Start with whatever we find in the PATH/LD_LIBRARY_PATH
 	for _, ldPath := range ldPaths {
 		d, err := filepath.Abs(ldPath)
 		if err != nil {
@@ -430,6 +448,52 @@ func FindGPULibs(baseLibName string, patterns []string) []string {
 	}
 	slog.Debug(fmt.Sprintf("gpu management search paths: %v", patterns))
 	for _, pattern := range patterns {
+		// Ignore glob discovery errors
+		matches, _ := filepath.Glob(pattern)
+		for _, match := range matches {
+			// Resolve any links so we don't try the same lib multiple times
+			// and weed out any dups across globs
+			libPath := match
+			tmp := match
+			var err error
+			for ; err == nil; tmp, err = os.Readlink(libPath) {
+				if !filepath.IsAbs(tmp) {
+					tmp = filepath.Join(filepath.Dir(libPath), tmp)
+				}
+				libPath = tmp
+			}
+			new := true
+			for _, cmp := range gpuLibPaths {
+				if cmp == libPath {
+					new = false
+					break
+				}
+			}
+			if new {
+				gpuLibPaths = append(gpuLibPaths, libPath)
+			}
+		}
+	}
+	slog.Info(fmt.Sprintf("Discovered GPU libraries: %v", gpuLibPaths))
+	return gpuLibPaths
+}
+
+func FindDynGPULibs(baseLibName string, workDir []string) []string {
+	// Multiple GPU libraries may exist, and some may not work, so keep trying until we exhaust them
+	var libPaths []string
+	gpuLibPaths := []string{}
+	slog.Info(fmt.Sprintf("Searching for dynamically loaded GPU mgmt shared library %s", baseLibName))
+
+	// Start with whatever we find in the provided extraction directory
+	for _, tmpPath := range workDir {
+		d, err := filepath.Abs(tmpPath)
+		if err != nil {
+			continue
+		}
+		libPaths = append(libPaths, filepath.Join(d, baseLibName+"*"))
+	}
+	slog.Debug(fmt.Sprintf("gpu management search paths: %v", libPaths))
+	for _, pattern := range libPaths {
 		// Ignore glob discovery errors
 		matches, _ := filepath.Glob(pattern)
 		for _, match := range matches {
