@@ -241,11 +241,13 @@ func initGPUHandles() {
 		dynRocmLibPaths := FindDynGPULibs(dynRocmMgmtName, dynRocmMgmtPatterns)
 		if len(dynRocmLibPaths) > 0 {
 			rocm := LoadROCMMgmt(dynRocmLibPaths)
+			slog.Info("WE TRIED LOADROCMMGT WITH DYNAMIC LIBRARY")
 			if rocm != nil {
 				slog.Info("Radeon GPU dynamically loaded")
 				gpuHandles.rocm = rocm
 				return
 			} else {
+				slog.Info("WE TRIED LOADROCMMGT WITH DYNAMIC LIBRARY...BUT IT FAILED GRACEFULLY")
 				rocmDynFailed = true
 			}
 		}
