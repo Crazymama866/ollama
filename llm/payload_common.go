@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-
+	"bufio"
 	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 
@@ -127,7 +127,7 @@ func nativeInit(workdir string) error {
 		return err
 	}
 
-	slog.Info(fmt.Print("Press any key to continue..."))
+	slog.Info(fmt.Sprintf("Press any key to continue..."))
 
 	// Create a bufio.Reader to read input from os.Stdin
 	reader := bufio.NewReader(os.Stdin)
