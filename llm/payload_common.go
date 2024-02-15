@@ -143,7 +143,7 @@ func nativeInit(workdir string) error {
 	// rocm_v5 FOR TESTING
 	// rocm_v6 FOR TESTING
 
-	lib1 := filepath.Join(workdir, "/rocm_v6/")
+	lib1 := filepath.Join(workdir, "/rocm_v6/librocm_smi64.so.6.0.60002")
 
 	libs = append(libs, lib1)
 	
