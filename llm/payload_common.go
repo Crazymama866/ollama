@@ -150,6 +150,7 @@ func nativeInit(workdir string) error {
 	libs = append(libs, lib2)
 	
 	for _, lib := range libs {
+		slog.Info(fmt.Sprintf("CHECKING OUT THIS ERROR LOG FOR LIB: %s", lib))
 		// The last dir component is the variant name
 		variant := filepath.Base(filepath.Dir(lib))
 		availableDynLibs[variant] = lib
@@ -163,6 +164,7 @@ func nativeInit(workdir string) error {
 	variants := make([]string, len(availableDynLibs))
 	i := 0
 	for variant := range availableDynLibs {
+		slog.Info(fmt.Sprintf("CHECKING OUT THIS ERROR LOG FOR VARIANT: %s", variant))
 		variants[i] = variant
 		i++
 	}
