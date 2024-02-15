@@ -131,6 +131,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 			}
 			dynGpuLibs.cudaLibs = append(dynGpuLibs.cudaLibs, lib)
 			dynGpuLibsPaths.cudaPaths = append(dynGpuLibsPaths.cudaPaths, d)
+			slog.info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
 		} else if (strings.HasPrefix(lib, "rocm")) {
 			directory := filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
@@ -139,6 +140,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 			}
 			dynGpuLibs.rocmLibs = append(dynGpuLibs.rocmLibs, lib)
 			dynGpuLibsPaths.rocmPaths = append(dynGpuLibsPaths.rocmPaths, d)
+			slog.info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
 		}
 	}
 	return dynGpuLibs, dynGpuLibsPaths
@@ -220,7 +222,7 @@ func initGPUHandles() {
 		if len(dynCudartLibPaths) > 0 {
 			cuda := LoadCUDAMgmt(dynCudartLibPaths)
 			if cuda != nil {
-				slog.Info("Nvidia GPU detected")
+				slog.Info("Nvidia GPU dynamically loaded")
 				gpuHandles.cuda = cuda
 				gpuHandles.cuda.lib_t = LibCUDART
 				return
@@ -235,7 +237,7 @@ func initGPUHandles() {
 		if len(dynRocmLibPaths) > 0 {
 			rocm := LoadROCMMgmt(dynRocmLibPaths)
 			if rocm != nil {
-				slog.Info("Radeon GPU detected")
+				slog.Info("Radeon GPU dynamically loaded")
 				gpuHandles.rocm = rocm
 				return
 			} else {
