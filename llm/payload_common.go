@@ -137,7 +137,7 @@ func nativeInit(workdir string) error {
 	if err != nil {
 		// Handle error if there is an issue reading input
 		fmt.Println("Error reading input:", err)
-		return
+		return err
 	}
 
 	// rocm_v5 FOR TESTING
