@@ -106,7 +106,7 @@ var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
 // Load available libraries unpackaged in payload_common.go
 
-var availableDynLibs = map[string]string{}
+var availableDynLibs []string
 var dynLibsDir string
 
 var cudaDynFailed bool = false
@@ -114,15 +114,15 @@ var rocmDynFailed bool = false
 
 // Function called in llm package during extraction of libraries
 // TODO: set a mutex
-func SetDynLibs(libs map[string]string, libsDir string) {
+func SetDynLibs(libs []string, libsDir string) {
 	availableDynLibs = libs
 	dynLibsDir = libsDir
 }
 
-func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths) {
+func parseDynLibs(libs []string, libsDir string) (dynLibs, dynLibsPaths) {
 	var dynGpuLibs dynLibs 
 	var dynGpuLibsPaths dynLibsPaths
-	for _, lib := range libs {
+	for lib := range libs {
 		slog.Info(fmt.Sprintf("Attempting to parse library %s at path %s", lib, libsDir))
 		if (strings.HasPrefix(lib, "cuda")) {
 			directory := filepath.Join(libsDir, lib)
