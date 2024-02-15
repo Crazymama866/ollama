@@ -131,7 +131,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 			}
 			dynGpuLibs.cudaLibs = append(dynGpuLibs.cudaLibs, lib)
 			dynGpuLibsPaths.cudaPaths = append(dynGpuLibsPaths.cudaPaths, d)
-			slog.info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
+			slog.Info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
 		} else if (strings.HasPrefix(lib, "rocm")) {
 			directory := filepath.Join(libsDir, lib)
 			d, err := filepath.Abs(directory)
@@ -140,7 +140,7 @@ func parseDynLibs(libs map[string]string, libsDir string) (dynLibs, dynLibsPaths
 			}
 			dynGpuLibs.rocmLibs = append(dynGpuLibs.rocmLibs, lib)
 			dynGpuLibsPaths.rocmPaths = append(dynGpuLibsPaths.rocmPaths, d)
-			slog.info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
+			slog.Info(fmt.Sprintf("Parsed dynamically extracted library %s at path %s", lib, d))
 		}
 	}
 	return dynGpuLibs, dynGpuLibsPaths
