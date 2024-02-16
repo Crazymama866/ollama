@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"bufio"
+
 	"golang.org/x/exp/slices"
 	"golang.org/x/sync/errgroup"
 
@@ -127,31 +127,9 @@ func nativeInit(workdir string) error {
 		return err
 	}
 
-	slog.Info(fmt.Sprintf("Press any key to continue..."))
-
-	// Create a bufio.Reader to read input from os.Stdin
-	reader := bufio.NewReader(os.Stdin)
-
-	// Wait for user input by reading a single byte (character)
-	_, reader_err := reader.ReadByte()
-	if reader_err != nil {
-		// Handle error if there is an issue reading input
-		fmt.Println("Error reading input:", reader_err)
-		return reader_err
-	}
-
-	// rocm_v5 FOR TESTING
-	// rocm_v6 FOR TESTING
-
-	lib1 := filepath.Join(workdir, "/rocm_v6/librocm_smi64.so.6.0.60002")
-
-	libs = append(libs, lib1)
-	
 	for _, lib := range libs {
-		slog.Info(fmt.Sprintf("CHECKING OUT THIS ERROR LOG FOR LIB: %s", lib))
 		// The last dir component is the variant name
 		variant := filepath.Base(filepath.Dir(lib))
-		slog.Info(fmt.Sprintf("CHECKING OUT THIS ERROR LOG FOR VARIANT: %s", variant))
 		availableDynLibs[variant] = lib
 	}
 
@@ -163,14 +141,11 @@ func nativeInit(workdir string) error {
 	variants := make([]string, len(availableDynLibs))
 	i := 0
 	for variant := range availableDynLibs {
-		slog.Info(fmt.Sprintf("CHECKING OUT THIS ERROR LOG FOR VARIANT2: %s", variant))
 		variants[i] = variant
 		i++
 	}
 	slog.Info(fmt.Sprintf("Dynamic LLM libraries %v", variants))
 	slog.Debug("Override detection logic by setting OLLAMA_LLM_LIBRARY")
-
-	gpu.SetDynLibs(variants, workdir)
 
 	return nil
 }
