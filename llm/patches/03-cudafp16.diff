@@ -112,6 +112,6 @@ index c8ab313..2e9cc90 100644
 +    if (last_delim_end < text.size()) {
 +        tokenizer.tokenize(text.c_str() + last_delim_end, text.size() - last_delim_end, output);
 +    }
-+    
++
      return output;
  }
