@@ -29,15 +29,15 @@ index c8ab313..2e9cc90 100644
 +                word = "<s>";
 +            else if (i == 2)
 +                word = "</s>";
-+		  
++
              float score = 0.0f;
              file.read_raw(&score, sizeof(score));
- 
+
 @@ -580,6 +587,8 @@ struct llama_file_loader {
              auto & tok_score = vocab.id_to_token[i];
              tok_score.tok = std::move(word);
              tok_score.score = score;
-+		  
++
 +		  //printf("vocab token %u  %s  score=%f\n", i, tok_score.tok.c_str(), tok_score.score);
          }
      }
@@ -70,15 +70,15 @@ index c8ab313..2e9cc90 100644
 @@ -2089,7 +2099,47 @@ static std::vector<llama_vocab::id> llama_tokenize(const llama_vocab & vocab, co
          output.push_back(llama_token_bos());
      }
- 
+
 -    tokenizer.tokenize(text, output);
 +    // add parsing of special BOS/EOS tokens (https://github.com/ggerganov/llama.cpp/pull/1931)
 +    std::unordered_map<llama_vocab::token, llama_vocab::id> special_token_to_id;
-+    
++
 +    special_token_to_id["<unk>"] = 0;
 +    special_token_to_id["<s>"] = 1;
 +    special_token_to_id["</s>"] = 2;
-+    
++
 +    size_t delim_start = 0;
 +    size_t last_delim_end = 0;
 +
@@ -115,4 +115,3 @@ index c8ab313..2e9cc90 100644
 +    
      return output;
  }
- 
