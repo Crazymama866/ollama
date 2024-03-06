@@ -150,7 +150,7 @@ if [ -d "${CUDA_LIB_DIR}" ]; then
         # ARM-based CPUs such as M1 and Tegra do not support AVX extensions.
         #
         # Tegra-based CUDA devices use LLAMA_CUDA_F16.
-        ARM64_DEFS="-DLLAMA_AVX=off -DLLAMA_AVX2=off -DLLAMA_AVX512=off -DLLAMA_CUDA_F16=on"
+        ARM64_DEFS="-DLLAMA_AVX=off -DLLAMA_AVX2=off -DLLAMA_AVX512=off -DLLAMA_CUDA_F16=on -DLLAMA_CUDA_FORCE_MMQ=off"
     fi
     CMAKE_DEFS="-DLLAMA_CUBLAS=on -DLLAMA_CUDA_FORCE_MMQ=on -DCMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES} ${COMMON_CMAKE_DEFS} ${CMAKE_DEFS} ${ARM64_DEFS}"
     BUILD_DIR="${LLAMACPP_DIR}/build/linux/${ARCH}/cuda${CUDA_VARIANT}"
