@@ -77,6 +77,11 @@ var CudartWindowsGlobs = []string{
 // Included to drive logic for reducing Ollama-allocated overhead on L4T/Jetson devices.
 var CudaTegra string = os.Getenv("JETSON_JETPACK")
 
+// Empty func to allow building while fixing code
+func AssetsDir() (string, error) {
+	return "", nil
+}
+
 // Note: gpuMutex must already be held
 func initGPUHandles() {
 
