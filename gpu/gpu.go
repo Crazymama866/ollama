@@ -88,7 +88,7 @@ func initGPUHandles() {
 	var cudartMgmtName string
 	var cudartMgmtPatterns []string
 
-	tmpDir, _ := AssetsDir()
+	tmpDir, _ := PayloadsDir()
 	switch runtime.GOOS {
 	case "windows":
 		nvmlMgmtName = "nvml.dll"
